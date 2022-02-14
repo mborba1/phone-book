@@ -34,9 +34,32 @@ const style = {
   }
 }
 
-function PhoneBookForm({ addEntryToPhoneBook, onChange, onSubmit }) {
+function PhoneBookForm({ addEntryToPhoneBook }) {
+  const [values, setValues] = useState({
+    userFirstname: 'Coder',
+    userLastname: 'Byte',
+    userPhone: '8885559999'
+  })
+
+  const reset = () => {
+    setValues({
+      userFirstname: '',
+      userLastname: '',
+      userPhone:''
+    })
+  }
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    addEntryToPhoneBook(values)
+    reset();
+  }
+
+  const handleChange = (e) => {
+    setValues( { ...values, [e.target.name]: e.target.value})
+  }
+  
   return (
-    <form onSubmit={e => onSubmit(e)} style={style.form.container}>
+    <form onSubmit={ handleSubmit } style={style.form.container}>
       <label>First name:</label>
       <br />
       <input 
@@ -44,8 +67,8 @@ function PhoneBookForm({ addEntryToPhoneBook, onChange, onSubmit }) {
         className='userFirstname'
         name='userFirstname' 
         type='text'
-        value={addEntryToPhoneBook.firstName}
-        onChange={e => onChange('firstName', e)}
+        onChange={ handleChange }
+        value={values.userFirstname} 
       />
       <br/>
       <label>Last name:</label>
@@ -55,8 +78,9 @@ function PhoneBookForm({ addEntryToPhoneBook, onChange, onSubmit }) {
         className='userLastname'
         name='userLastname' 
         type='text' 
-        value={addEntryToPhoneBook.lastName}
-        onChange={(e) => onChange('lastName', e)}
+        onChange={ handleChange }
+        value={values.userLastname}
+        
       />
       <br />
       <label>Phone:</label>
@@ -66,8 +90,9 @@ function PhoneBookForm({ addEntryToPhoneBook, onChange, onSubmit }) {
         className='userPhone' 
         name='userPhone' 
         type='text'
-        value={addEntryToPhoneBook.phone}
-        onChange={(e) => onChange('phone', e)}
+        onChange={handleChange}
+        value={values.userPhone}
+        
       />
       <br/>
       <input 
@@ -82,7 +107,7 @@ function PhoneBookForm({ addEntryToPhoneBook, onChange, onSubmit }) {
 
 function InformationTable(props) {
   const { data } = props
-  let sortLastName = data.sort((a,b) => a.lastName.localeCompare(b.lastName))
+ // let sortLastName = data.sort((a,b) => a.lastName.localeCompare(b.lastName))
   return (
     <table style={style.table} className='informationTable'>
       <thead> 
@@ -93,39 +118,30 @@ function InformationTable(props) {
         </tr>
       </thead> 
       <tbody>
-      {sortLastName.map((item, index) => (
-        <tr key={index}>
-          <td style={style.tableCell}>{item.firstName}</td>
-          <td style={style.tableCell}>{item.lastName}</td>
-          <td style={style.tableCell}>{item.phone}</td>
+      { data.map(item => {
+        return (
+          <tr key={data.userPhone}>
+          <td style={style.tableCell}>{item.userFirstname}</td>
+          <td style={style.tableCell}>{item.userLastname}</td>
+          <td style={style.tableCell}>{item.userPhone}</td>
         </tr>
-      ))}
+        )  
+      })}
       </tbody>
     </table>
   );
 }
-const initialValue = {firstName: '', lastName: '', phone: ''}
+// const initialValue = {firstName: '', lastName: '', phone: ''}
 
 function Application(props) {
-  const [users, setUsers] = useState([{firstName: 'Coder', lastName: 'Byte', phone: '8885559999'}])
-  const [userInput, setUserInput] = useState(initialValue)
+  const [users, setUsers] = useState([])
 
-  function handleSubmit(e){
-    e.preventDefault()
-    let newUser =[...users]
-    if(userInput.firstName !== '' && userInput.lastName !== '' && userInput.phone !== ''){
-      newUser = [...users, userInput]
-    }
-    setUsers(newUser)
-    setUserInput(initialValue)
+  const  addEntryToPhoneBook = (user) => {
+    setUsers( [...users, user].sort( (a,b) => a.userLastname.toLowerCase() > b.userLastname.toLowerCase() ? 1 : -1))
   }
-  function handleChange(name, event){
-    setUserInput({...userInput, [name]: event.target.value})
-  }
-
   return (
     <section>
-      <PhoneBookForm addEntryToPhoneBook={userInput} onChange={handleChange} onSubmit={handleSubmit}/>
+      <PhoneBookForm addEntryToPhoneBook={ addEntryToPhoneBook }/>
       <InformationTable data={users} />
     </section>
   );
